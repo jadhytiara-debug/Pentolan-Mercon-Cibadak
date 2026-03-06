@@ -62,7 +62,11 @@
         .cart-checkout:hover { background: #128C7E; transform: translateY(-2px); }
         .cart-clear { width: 100%; padding: 10px; background: transparent; color: var(--gray); border: 2px solid var(--gray); border-radius: 12px; font-size: 0.9rem; cursor: pointer; margin-top: 10px; transition: all 0.3s; }
         .cart-clear:hover { border-color: var(--secondary); color: var(--secondary); }
-        .hero { min-height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; text-align: center; padding: px 80px120px 20; overflow: hidden; }
+        .address-section { margin-bottom: 15px; }
+        .address-label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--maroon); margin-bottom: 8px; }
+        .address-input { width: 100%; padding: 12px; border: 2px solid var(--off-white); border-radius: 10px; font-family: 'Poppins', sans-serif; font-size: 0.85rem; resize: none; transition: border-color 0.3s; }
+        .address-input:focus { outline: none; border-color: var(--primary); }
+.hero { min-height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; text-align: center; padding: 100px 20px; overflow: hidden; }
         .hero-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); z-index: 0; object-fit: cover; }
         .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(106, 4, 15, 0.75), rgba(157, 2, 8, 0.65), rgba(230, 57, 70, 0.5)); z-index: 1; }
         .hero-content { max-width: 800px; position: relative; z-index: 3; }
@@ -311,6 +315,14 @@
                 <span class="cart-total-label">Total Belanja</span>
                 <span class="cart-total-price" id="cartTotal">Rp 0</span>
             </div>
+            <div class="address-section">
+                <label for="customerName" class="address-label"><i class="fas fa-user"></i> Nama Pemesan:</label>
+                <input type="text" id="customerName" class="address-input" placeholder="Masukkan nama Anda" style="width:100%;padding:12px;border:2px solid var(--off-white);border-radius:10px;font-family:'Poppins',sans-serif;font-size:0.85rem;">
+            </div>
+            <div class="address-section">
+                <label for="deliveryAddress" class="address-label"><i class="fas fa-map-marker-alt"></i> Alamat Pengiriman:</label>
+                <textarea id="deliveryAddress" class="address-input" placeholder="Contoh: Jl. Ahmad Yani No. 15, RT 01 RW 02, Kelurahan Cibadak, Kecamatan Cibadak, Kabupaten Sukabumi" rows="3"></textarea>
+            </div>
             <button class="cart-checkout" onclick="checkoutWA()">
                 <i class="fab fa-whatsapp"></i> Checkout via WhatsApp
             </button>
@@ -326,7 +338,7 @@ var menuItems = [
             {name:"Pentolan Ceker",price:15000,desc:"bakso + Ceker ayam empuk dalam kuah mercon",image:"pentolceker.jpeg"},
             {name:"Pentolan Tahu",price:15000,desc:"Tahu lembut diselimuti saus mercon",image:"pentoltahu.jpeg"},
             {name:"Pentolan Mix",price:18000,desc:"Kombinasi bakso + bakso gede + tahu/ceker",image:"pentolmixtahu.jpeg"},
-            {name:"Ceker Mercon",price:15000,desc:"Ceker saha ieu meni menggoda",image:"cekermercon.jpeg"},
+            {name:"Ceker Mercon",price:15000,desc:"Ceker saha ieu meni menggoda",image:"cekermercon.png"},
             {name:"Tahu Mercon",price:15000,desc:"TAHU-nya meuni bebeledagan pisan",image:"tahumercon.jpeg"},
             {name:"Paket Komplit",price:22000,desc:"Premium mix dengan seafood segar",image:"pentolkomplit.png"},
             {name:"Pentol Japlak Kuah",price:15000,desc:"Ah ini varian penuh nostalgia yaitu JAPLAK",image:"pentoljaplak.jpeg"},
@@ -357,14 +369,12 @@ var menuItems = [
         var cart = [];
         
         function selectLevel(menuIndex, levelNum, levelName) {
-            // Clear previous selected level styling
             var levelButtons = document.querySelectorAll('.level-btn-' + menuIndex);
             levelButtons.forEach(function(btn) {
                 btn.style.background = 'white';
                 btn.style.color = 'var(--primary)';
             });
             
-            // Highlight selected level
             var selectedBtn = document.getElementById('level-btn-' + menuIndex + '-' + levelNum);
             if(selectedBtn) {
                 selectedBtn.style.background = 'var(--primary)';
@@ -375,7 +385,6 @@ var menuItems = [
         }
         
         function addToCartFromButton(menuIndex, name, price) {
-            // Get selected level or use default level 3
             var levelNum = 3;
             var levelName = "3 - Pedas";
             
@@ -384,7 +393,6 @@ var menuItems = [
                 levelName = selectedLevels[menuIndex].name;
             }
             
-            // Get selected toppings
             var toppingList = selectedToppings[menuIndex] || [];
             var toppingTotal = toppingList.reduce(function(sum, t) { return sum + t.price; }, 0);
             var levelPrice = getLevelPrice(levelNum);
@@ -413,24 +421,20 @@ var menuItems = [
                 });
             }
             
-            // Clear selections after adding to cart
             selectedToppings[menuIndex] = [];
             selectedLevels[menuIndex] = {};
             
-            // Reset topping checkboxes
             var toppingCheckboxes = document.querySelectorAll('.menu-card:nth-child(' + (menuIndex + 1) + ') .menu-topping input[type="checkbox"]');
             toppingCheckboxes.forEach(function(cb) {
                 cb.checked = false;
             });
             
-            // Reset level button styling
             var levelButtons = document.querySelectorAll('.level-btn-' + menuIndex);
             levelButtons.forEach(function(btn) {
                 btn.style.background = 'white';
                 btn.style.color = 'var(--primary)';
             });
             
-            // Clear topping display
             var display = document.getElementById('topping-display-' + menuIndex);
             if(display) {
                 display.innerHTML = '';
@@ -622,11 +626,18 @@ var menuItems = [
         
         function clearCart() {
             cart = [];
+            var customerNameField = document.getElementById("customerName");
+            var deliveryAddressField = document.getElementById("deliveryAddress");
+            if(customerNameField) customerNameField.value = "";
+            if(deliveryAddressField) deliveryAddressField.value = "";
             updateCartUI();
         }
         
         function checkoutWA() {
             if(cart.length === 0) return;
+            
+            var customerName = document.getElementById("customerName").value;
+            var deliveryAddress = document.getElementById("deliveryAddress").value;
             
             var message = "Halo Pentolan Mercon, saya mau order:\n\n";
             var grandTotal = 0;
@@ -642,6 +653,15 @@ var menuItems = [
             message += "\n======================\n";
             message += "TOTAL: Rp " + grandTotal.toLocaleString("id-ID") + "\n";
             message += "======================\n\n";
+            
+            if(customerName && customerName.trim() !== "") {
+                message += "👤 Nama: " + customerName.trim() + "\n\n";
+            }
+            
+            if(deliveryAddress && deliveryAddress.trim() !== "") {
+                message += "📍 Alamat Pengiriman:\n" + deliveryAddress.trim() + "\n\n";
+            }
+            
             message += "Mohon dikonfirmasi pesanan saya. Terima kasih!";
             
             window.open("https://wa.me/6289654415933?text=" + encodeURIComponent(message), "_blank");
@@ -689,7 +709,6 @@ card.innerHTML = '<div class="menu-image"><img src="images/' + item.image + '" a
         }
         
         renderMenu();
-        // renderToppings(); // Disabled - toppings are now only available within each menu item
         
         var hamburger = document.getElementById("hamburger");
         var navLinks = document.getElementById("navLinks");
@@ -714,5 +733,3 @@ card.innerHTML = '<div class="menu-image"><img src="images/' + item.image + '" a
     </script>
 </body>
 </html>
-
-
